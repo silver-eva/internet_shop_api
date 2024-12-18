@@ -1,0 +1,13 @@
+services:
+  api:
+    container_name: api
+    image: api_image
+    restart: unless-stopped
+    entrypoint: python main.py -a 0.0.0.0 -p 8000 --reload
+    volumes:
+      - ./src:/src
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
