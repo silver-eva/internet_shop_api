@@ -11,3 +11,36 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8000:8000
+    depends_on:
+      - db_srv
+    networks:
+      - db_network
+  
+  db_srv:
+    container_name: db_service
+    build: 
+      context: db_service
+      args:
+        - POSTGRES_USER=${DB_USER}
+        - POSTGRES_PASSWORD=${DB_PASS}
+        - POSTGRES_DB=${DB_NAME}
+    environment:
+      - PGDATA=/var/lib/postgresql/data
+    command: postgres
+    ports:
+      - ${DB_PORT}:5432
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: 1.0
+          memory: "1G"
+    networks:
+      - db_network
+
+networks:
+  db_network:
+volumes:
+  pg_data:
