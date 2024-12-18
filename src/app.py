@@ -10,11 +10,11 @@ async def shutdown_event():
 
 class App(FastAPI):
     def __init__(self):
-        super().__init__(title="API", version="0.0.1", description="Shop API", openapi_prefix="/api/v1")
+        super().__init__(title="API", version="0.0.1", description="Shop API", root_path="/api/v1")
 
         self.set_event_handlers()
-        self.set_routers()
         self.set_error_handlers()
+        self.set_routers()
         self.set_middlewares()
         
     def set_routers(self):

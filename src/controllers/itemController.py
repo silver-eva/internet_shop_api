@@ -1,4 +1,6 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Query, Body, Path
+from typing import Literal
+
 
 class ItemController(APIRouter):
     def __init__(self):
@@ -51,17 +53,42 @@ class ItemController(APIRouter):
             description="Delete item by id"
         )
 
-    async def get_items(self) -> list:
+    async def get_items(
+            self, 
+            lang: Literal["ua", "en", "ru"] = Query(default="ua"),
+            curency: Literal["uah", "usd"] = Query(default="uah")) -> list:
+        print(lang, curency)
         return []
     
-    async def get_item(self, id: int) -> dict:
+    async def get_item(
+            self, 
+            id: int = Path(), 
+            lang: Literal["ua", "en", "ru"] = Query(default="ua"),
+            curency: Literal["uah", "usd"] = Query(default="uah"),
+            ) -> dict:
         return {}
     
-    async def create_item(self, item: dict):
+    async def create_item(
+            self, 
+            item: dict = Body(default={}),
+            lang: Literal["ua", "en", "ru"] = Query(default="ua"),
+            curency: Literal["uah", "usd"] = Query(default="uah"),
+            ) -> None:
         return None
     
-    async def update_item(self, id: int, item: dict):
+    async def update_item(
+            self, 
+            id: int = Path(), 
+            item: dict = Body(default={}),
+            lang: Literal["ua", "en", "ru"] = Query(default="ua"),
+            curency: Literal["uah", "usd"] = Query(default="uah"),
+            ) -> None:
         return None
     
-    async def delete_item(self, id: int):
+    async def delete_item(
+            self, 
+            id: int = Path(),
+            lang: Literal["ua", "en", "ru"] = Query(default="ua"),
+            curency: Literal["uah", "usd"] = Query(default="uah"),
+            ) -> None:
         return None
