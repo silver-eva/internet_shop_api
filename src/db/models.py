@@ -1,5 +1,5 @@
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, DateTime, DECIMAL, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, DECIMAL, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -20,23 +20,24 @@ class BaseModel(Base):
 
     def as_dict(self, include: list[str] = None, exclude: list[str] = None):
         as_dict = {}
+        columns: list[Table] = self.__table__.columns
 
         if include:
-            for column in self.__table__.columns:
+            for column in columns:
                 if column.name in include:
                     as_dict[column.name] = getattr(self, column.name)
         elif exclude:
-            for column in self.__table__.columns:
+            for column in columns:
                 if column.name not in exclude:
                     as_dict[column.name] = getattr(self, column.name)
         else:
-            for column in self.__table__.columns:
+            for column in columns:
                 as_dict[column.name] = getattr(self, column.name)
 
         return as_dict
 
 class User(BaseModel):
-    __tablename__ = f"user"
+    __tablename__ = "user"
 
     name = Column(String, index=True, nullable=False)
     password = Column(String, nullable=False)
@@ -46,7 +47,7 @@ class User(BaseModel):
     items = relationship("Item", back_populates="owner")
 
 class Item(BaseModel):
-    __tablename__ = f"item"
+    __tablename__ = "item"
 
     title = Column(String, index=True)
 
