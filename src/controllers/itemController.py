@@ -1,5 +1,13 @@
-from fastapi import APIRouter, status, Query, Body, Path
+from fastapi import APIRouter, status, Query, Path, Depends, Body
 from typing import Literal
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.db.session import get_session
+# from src.db.models import Item
+from src.db.service.item import insert_item, list_items
+
+from src.models.itemModels import ItemRequest, ItemResponse
+    
 
 
 class ItemController(APIRouter):
@@ -21,7 +29,7 @@ class ItemController(APIRouter):
             self.get_item,
             methods=["GET"],
             status_code=status.HTTP_200_OK,
-            response_model=dict, #TODO: Item
+            response_model=ItemResponse, #TODO: Item
             summary="Get item by id",
             description="Get item by id"
         )
@@ -55,26 +63,29 @@ class ItemController(APIRouter):
 
     async def get_items(
             self, 
-            lang: Literal["ua", "en", "ru"] = Query(default="ua"),
-            curency: Literal["uah", "usd"] = Query(default="uah")) -> list:
-        print(lang, curency)
-        return []
+            limit: int = Query(default=10),
+            page: int = Query(default=1),
+            db: AsyncSession = Depends(get_session)) -> list:
+        return await list_items(db, page, limit)
     
     async def get_item(
             self, 
             id: int = Path(), 
             lang: Literal["ua", "en", "ru"] = Query(default="ua"),
             curency: Literal["uah", "usd"] = Query(default="uah"),
+            db: AsyncSession = Depends(get_session)
             ) -> dict:
         return {}
     
     async def create_item(
             self, 
-            item: dict = Body(default={}),
+            item: ItemRequest,
             lang: Literal["ua", "en", "ru"] = Query(default="ua"),
             curency: Literal["uah", "usd"] = Query(default="uah"),
+            db: AsyncSession = Depends(get_session),
             ) -> None:
-        return None
+        
+        return await insert_item(db, item, lang, curency)
     
     async def update_item(
             self, 
