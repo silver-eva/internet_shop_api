@@ -5,10 +5,18 @@ services:
     restart: unless-stopped
     entrypoint: python main.py -a 0.0.0.0 -p 8000 --reload
     volumes:
-      - ./src:/src
+      - ./src:/app/src
+      - ./main.py:/app/main.py
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - DB_NAME=${DB_NAME}
+        - DB_USER=${DB_USER}
+        - DB_PASS=${DB_PASS}
+        - DB_HOST=${DB_HOST}
+        - DB_PORT=${DB_PORT}
+        - DB_SCHEMA=${DB_SCHEMA}
     ports:
       - 8000:8000
     depends_on:
