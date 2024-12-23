@@ -22,11 +22,18 @@ async def insert_item(db: AsyncSession, item: ItemRequest):
     ).returning(Item)
     return await db_execute(db, query, with_result="one")
 
-async def list_items(db: AsyncSession, page: int, limit: int) -> list[ItemResponse]:
+async def list_items(
+        db: AsyncSession, 
+        category: str,
+        filter: str,
+        page: int, 
+        limit: int
+    ) -> list[ItemResponse]:
     offset = (page - 1) * limit if page > 1 else 0
     query = select(Item).limit(limit).offset(offset)
     items: list[Item] = await db_execute(db, query, with_result="all")
     ready_items = []
+    
     for item in items:
         ready_item = item.as_dict(exclude=["additional"])
         ready_items.append(

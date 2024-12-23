@@ -1,10 +1,7 @@
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, DateTime, DECIMAL, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Numeric, text, DDL, event
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
-import uuid
-from datetime import datetime
 
 from src.lib.config import config
 
@@ -13,10 +10,11 @@ Base = declarative_base()
 class BaseModel(Base):
     __abstract__ = True
     __table_args__ = {"schema": config.db_schema}
+    
 
-    id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    id = Column(UUID, primary_key=True, index=True, server_default=text("uuid_generate_v4()"))
+    created_at = Column(DateTime, server_default=text("now()"))
+    updated_at = Column(DateTime, server_default=text("now()"))
 
     def as_dict(self, include: list[str] = None, exclude: list[str] = None):
         as_dict = {}
@@ -36,6 +34,14 @@ class BaseModel(Base):
 
         return as_dict
 
+
+class ItemBase(BaseModel):
+    __abstract__ = True
+
+    name = Column(String, index=True)
+    description = Column(String, index=True)
+
+    
 class User(BaseModel):
     __tablename__ = "user"
 
@@ -44,20 +50,33 @@ class User(BaseModel):
     email = Column(String, nullable=False, unique=True)
     role = Column(String, nullable=False, default="viewer")
 
-    items = relationship("Item", back_populates="owner")
+class Category(ItemBase):
+    __tablename__ = "category"
 
-class Item(BaseModel):
+    items = relationship("Item", back_populates="category", cascade="all, delete-orphan")
+
+class Item(ItemBase):
     __tablename__ = "item"
 
-    title = Column(String, index=True)
+    price = Column(Numeric, nullable=False)
+    category_id = Column(ForeignKey(Category.id), nullable=False)
 
-    price = Column(DECIMAL, index=True, nullable=False, default=0.0)
-    dimention = Column(String, index=True, nullable=False)
-    single_piece = Column(Integer, index=True, nullable=False, default=0.0)
+    category = relationship("Category", back_populates="items")
+    characteristics = relationship("Characteristic", back_populates="items", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="items", cascade="all, delete-orphan")
 
-    additional = Column(String)
-    
-    description = Column(String, index=True)
-    owner_id = Column(ForeignKey(User.id), nullable=False)
+class Characteristic(ItemBase):
+    __tablename__ = "characteristic"
 
-    owner = relationship("User", back_populates="items")
+    value = Column(String, nullable=False)
+    item_id = Column(ForeignKey(Item.id), nullable=False)
+
+    items = relationship("Item", back_populates="characteristics")
+
+class Review(BaseModel):
+    __tablename__ = "review"
+
+    stars = Column(Integer, nullable=False)
+    item_id = Column(ForeignKey(Item.id), nullable=False)
+
+    items = relationship("Item", back_populates="reviews")
