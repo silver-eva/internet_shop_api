@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Query, Path, Depends, Body, status
+from fastapi import APIRouter, Query, Path, Depends, Body, status, HTTPException
 from typing import Literal
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.db.session import get_session, db_execute
+from src.db.engine import get_session, db_execute
 from src.db.models import Item, Category, Characteristic
 
 from sqlalchemy.dialects.postgresql import insert
@@ -60,22 +60,21 @@ class ItemController(APIRouter):
             item: ItemRequest,
             db: AsyncSession = Depends(get_session),
             ) -> None:
-        
-        category = await db_execute(
-            db, 
+
+        category = (await db.execute(
             select(
                 Category
             ).where(
                 Category.id == item.category_id
-            ), 
-            with_result="one"
-        )
-        if category is None:
-            raise Exception("Category not found")
+            )
+        )).scalar_one_or_none()
 
-        new_item = await db_execute(
-            db, 
+        if not category:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Category not found")
+
+        new_item = (await db.execute(
             insert(Item).values(
+                id=item.id,
                 name=item.name,
                 description=item.description,
                 price=item.price,
@@ -89,23 +88,32 @@ class ItemController(APIRouter):
                     Item.category_id: category.id,
                     Item.updated_at: datetime.now()
                 }
-            ).returning(Item),
-            with_result="one"
-        )
+            ).returning(Item)
+        )).scalar_one_or_none()
+
         if new_item is None:
-            raise Exception("Item not created")
+            raise HTTPException("Item not created", status_code=status.HTTP_400_BAD_REQUEST)
 
         for characteristic in item.characteristics:
-            await db_execute(
-                db, 
+            await db.execute(
                 insert(Characteristic).values(
                     value=characteristic.value,
                     item_id=new_item.id,
                     name = characteristic.name,
                     description = characteristic.description
+                ).on_conflict_do_update(
+                    index_elements=[Characteristic.name],
+                    set_={
+                        Characteristic.name: characteristic.name,
+                        Characteristic.description: characteristic.description,
+                        Characteristic.value: characteristic.value,
+                        Characteristic.item_id: new_item.id,
+                        Characteristic.updated_at: datetime.now()
+                    }
                 )
             )
-        
+
+        await db.commit()
         return status.HTTP_201_CREATED
     
     async def update_item(

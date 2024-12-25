@@ -10,7 +10,7 @@ it's create `alembic` dir, now U need to edit `alembic/env.py` file by:
 
 ```python
 from src.db.models import Base
-from src.db.connect import url
+from src.db.engine import url
 
 # Set target metadata so Alembic knows where the models are
 target_metadata = Base.metadata

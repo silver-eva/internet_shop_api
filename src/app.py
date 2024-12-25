@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from src.controllers.itemController import ItemController
+from src.controllers.coreController import CoreController
 
 async def startup_event():
     print("Startup")
@@ -17,6 +18,7 @@ class App(FastAPI):
         self.set_middlewares()
         
     def set_routers(self):
+        self.include_router(CoreController())
         self.include_router(ItemController())
 
     def set_error_handlers(self):
