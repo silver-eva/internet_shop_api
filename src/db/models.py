@@ -16,6 +16,9 @@ class BaseModel(Base):
     created_at = Column(DateTime, server_default=text("now()"))
     updated_at = Column(DateTime, server_default=text("now()"))
 
+    name = Column(String, index=True, nullable=False, unique=False)
+    description = Column(String, index=True)
+
     def as_dict(self, include: list[str] = None, exclude: list[str] = None):
         as_dict = {}
         columns: list[Table] = self.__table__.columns
@@ -34,47 +37,63 @@ class BaseModel(Base):
 
         return as_dict
 
-
-class ItemBase(BaseModel):
-    __abstract__ = True
-
-    name = Column(String, index=True)
-    description = Column(String, index=True)
-
     
 class User(BaseModel):
     __tablename__ = "user"
 
-    name = Column(String, index=True, nullable=False)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     role = Column(String, nullable=False, default="viewer")
 
-class Category(ItemBase):
+class Category(BaseModel):
     __tablename__ = "category"
 
-    items = relationship("Item", back_populates="category", cascade="all, delete-orphan")
+    name = Column(String, nullable=False, unique=True)
 
-class Item(ItemBase):
+    items = relationship("ItemCategory", back_populates="categories")
+
+class Item(BaseModel):
     __tablename__ = "item"
 
     price = Column(Numeric, nullable=False)
     category_id = Column(ForeignKey(Category.id), nullable=False)
 
-    category = relationship("Category", back_populates="items")
-    characteristics = relationship("Characteristic", back_populates="items", cascade="all, delete-orphan")
+    category = relationship("ItemCategory", back_populates="items")
+    characteristics = relationship("ItemCharacteristic", back_populates="items")
     reviews = relationship("Review", back_populates="items", cascade="all, delete-orphan")
 
-class Characteristic(ItemBase):
+class ItemCategory(BaseModel):
+    __tablename__ = "item_category"
+
+    name = Column(String, nullable=True)
+
+    item_id = Column(ForeignKey(Item.id), nullable=False)
+    category_id = Column(ForeignKey(Category.id), nullable=False)
+
+    items = relationship("Item", back_populates="category")
+    categories = relationship("Category", back_populates="items")
+
+class Characteristic(BaseModel):
     __tablename__ = "characteristic"
 
-    value = Column(String, nullable=False)
+    items = relationship("ItemCharacteristic", back_populates="characteristics")
+
+class ItemCharacteristic(BaseModel):
+    __tablename__ = "item_characteristic"
+
+    name = Column(String, nullable=True)
+
     item_id = Column(ForeignKey(Item.id), nullable=False)
+    characteristic_id = Column(ForeignKey(Characteristic.id), nullable=False)
+    value = Column(String, nullable=False)
 
     items = relationship("Item", back_populates="characteristics")
+    characteristics = relationship("Characteristic", back_populates="items")
 
 class Review(BaseModel):
     __tablename__ = "review"
+
+    name = Column(String, nullable=True)
 
     stars = Column(Integer, nullable=False)
     item_id = Column(ForeignKey(Item.id), nullable=False)
