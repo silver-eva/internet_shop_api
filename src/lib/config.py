@@ -2,10 +2,6 @@ import os
 from dataclasses import dataclass
 from typing import Any
 
-# import logging
-
-# logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-
 @dataclass
 class Config:
     db_user: str = os.getenv("DB_USER")
