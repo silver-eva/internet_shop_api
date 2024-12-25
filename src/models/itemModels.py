@@ -31,4 +31,3 @@ class ItemRequest(BaseModel):
     description: str = Field(..., max_length=256)
     characteristics: list[CharacteristicRequest] = Field(...)
     price: float = Field(..., gt=0)
-     
