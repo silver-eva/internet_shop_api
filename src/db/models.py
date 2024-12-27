@@ -1,5 +1,5 @@
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Numeric, text, DDL, event
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Table, Numeric, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -48,15 +48,12 @@ class User(BaseModel):
 class Category(BaseModel):
     __tablename__ = "category"
 
-    name = Column(String, nullable=False, unique=True)
-
     items = relationship("ItemCategory", back_populates="categories")
 
 class Item(BaseModel):
     __tablename__ = "item"
 
     price = Column(Numeric, nullable=False)
-    category_id = Column(ForeignKey(Category.id), nullable=False)
 
     category = relationship("ItemCategory", back_populates="items")
     characteristics = relationship("ItemCharacteristic", back_populates="items")
