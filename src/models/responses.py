@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 
-class BaseResponse(BaseModel):
+class CoreResponse(BaseModel):
     id: UUID
     name: str
     description: str
@@ -17,7 +17,4 @@ class ListResponse(BaseModel):
     page: int
     limit: int
     total: int
-    items: list[BaseResponse]
-
-class CategoryResponse(BaseResponse):
-    pass
+    items: list[CoreResponse]
