@@ -17,7 +17,7 @@ class CoreUpsertRequest(BaseModel):
     description: str = Field(default_factory=str, max_length=256)
 
 class ItemFilterRequest(PaginationRequest):
-    category: Optional[UUID4] = Field(..., default_factory=uuid4)
+    category: Optional[UUID4] = Field(None)
     characteristics: Optional[List[CharacteristicRequest]] = Field(
         default=CharacteristicRequest, 
         description="List of characteristics with char_id and char_value"
@@ -32,7 +32,7 @@ class ItemUpsertRequest(BaseModel):
     name: Optional[str] = Field(default_factory=str, max_length=128)
     description: Optional[str] = Field(default_factory=str, max_length=256)
     price: Optional[float | int] = Field(gt=0, default=0)
-    category: Optional[UUID4] = Field(default_factory=uuid4)
+    category: Optional[UUID4] = Field(default_factory=uuid4, description="Category id [UUID]")
     characteristics: Optional[List[CharacteristicRequest]] = Field(
         default=CharacteristicRequest, 
         description="List of characteristics with char_id and char_value"
