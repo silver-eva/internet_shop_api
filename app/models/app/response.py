@@ -30,14 +30,8 @@ class ItemResponse(BaseModel):
     description: str
     price: float
     category: CategoryResponse
-    characteristics: List[Characteristic]
-    reviews: List[ReviewResponse]
-
-class ItemShortResponse(BaseModel):
-    id: UUID4
-    name: str
-    price: float
-    category: str
+    characteristics: List[Characteristic|None]
+    reviews: List[ReviewResponse| None]
 
 class NewsResponse(BaseModel):
     id: UUID4
@@ -64,7 +58,7 @@ class CorePaginationResponse(PaginationResponse):
     items: List[CoreResponse]
 
 class ItemsPaginationResponse(PaginationResponse):
-    items: List[ItemShortResponse]
+    items: List[ItemResponse]
 
 class NewsPaginationResponse(PaginationResponse):
     items: List[NewsShortResponse]
