@@ -1,6 +1,7 @@
 from uuid import UUID
 from fastapi import APIRouter, Query, Path, Body, status, Depends, HTTPException
 from typing import Literal
+from uuid import uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
@@ -42,7 +43,10 @@ async def list_items(
     ).group_by(model.name, model.id).limit(request.limit).offset(offset)
 
     items: list[Category | Characteristic] = await db_execute(db, query, with_result="raw_all")
-    _, count = items[0]
+    count = 0
+    if items:
+        _, count = items[0]
+    
 
     return CorePaginationResponse(
         page=request.page,
@@ -62,6 +66,7 @@ async def upsert_item(
     if not request.id:
         if await db_execute(db, select(model).where(model.name == request.name), with_result="one"):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Name already exists")
+        request.id = str(uuid4())
     
     await db_execute(
         db,
