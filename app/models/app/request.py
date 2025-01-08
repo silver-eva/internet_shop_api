@@ -17,9 +17,9 @@ class CoreUpsertRequest(BaseModel):
     description: str = Field(default_factory=str, max_length=256)
 
 class ItemFilterRequest(PaginationRequest):
-    category: Optional[UUID4] = Field(None)
+    category: Optional[UUID4] = Field(None, description="Category id [UUID]")
     characteristics: Optional[List[CharacteristicRequest]] = Field(
-        default=CharacteristicRequest, 
+        default=[], 
         description="List of characteristics with char_id and char_value"
     )
     sort_dir: Literal["asc", "desc"] = Field(default="asc")
