@@ -1,8 +1,7 @@
 import uvicorn
 import argparse
 
-from src.app import App
-from src.lib.config import LOGGING_CONFIG
+from app import app
 
 def get_args():
     parser = argparse.ArgumentParser(description="Process some arguments.")
@@ -13,8 +12,6 @@ def get_args():
     parser.add_argument('-l', '--log_level', type=str, choices=['debug', 'info', 'warning', 'error'], help='Logging level', default='info')
 
     return parser.parse_args()
-
-app = App()
 
 if __name__ == "__main__":
     args = get_args()
@@ -33,6 +30,5 @@ if __name__ == "__main__":
         host=args.address,
         port=args.port,
         reload=args.reload,
-        log_level=args.log_level,
-        log_config=LOGGING_CONFIG
+        log_level=args.log_level
     )
