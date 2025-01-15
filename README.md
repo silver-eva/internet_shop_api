@@ -1,22 +1,20 @@
 # Internet Shop API
 
 ## Migration with alembic:
-if `alembic` dir not in project root run:
+if `alembic` dir not in `app` run `cd app/` and execute:
 ```bash
-$ alembic init -t async alembic
+alembic init -t async alembic
 ```
 
-it's create `alembic` dir, now U need to edit `alembic/env.py` file by:
+it's create `alembic` dir, now U need to edit `app/alembic/env.py` file by:
 
 ```python
-from src.db.models import Base
-from src.db.engine import url
+from models.db import Base
 
-# Set target metadata so Alembic knows where the models are
 target_metadata = Base.metadata
 
-# Set URL to the database
-config.set_main_option("sqlalchemy.url",  url)
+config.set_main_option("sqlalchemy.url", "postgresql+asyncpg://<user>:<password>@<address>:<port>/<database>")
+
 ```
 
 Now to make migration run:
@@ -24,13 +22,13 @@ Now to make migration run:
 $ alembic revision --autogenerate -m "Message"
 ```
 
-its create `alembic/versions/<id>.py` file with migration
+its create `app/alembic/versions/<id>.py` file with migration
 
 Now U need to upgrade database, run:
 
 ```bash
 $ alembic upgrade head
 ```
->__NOTE__: enshure db is available!
+>__NOTE__: ensure db is available!
 
 U'r in!
