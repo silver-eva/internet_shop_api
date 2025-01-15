@@ -248,4 +248,14 @@ async def add_review(
     request: ReviewRequest = Body(default=ReviewRequest()),
     db: AsyncSession = Depends(get_db)
     ):
+    await db.execute(
+        insert(Review).values(
+            item_id=id,
+            name=request.name,
+            description=request.description,
+            stars=request.stars
+        )
+    )
+
+    await db.commit()
     return status.HTTP_204_NO_CONTENT

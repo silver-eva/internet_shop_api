@@ -55,6 +55,17 @@ async def upsert_news(
 @router.post("/{id}/review", tags=["reviews"], description="Add review")
 async def add_review(
     id: UUID = Path(),
-    request: ReviewRequest = Body(default=ReviewRequest())
+    request: ReviewRequest = Body(default=ReviewRequest()),
+    db: AsyncSession = Depends(get_db)
     ):
+    await db.execute(
+        insert(Review).values(
+            news_id=id,
+            name=request.name,
+            description=request.description,
+            stars=request.stars
+        )
+    )
+
+    await db.commit()
     return status.HTTP_204_NO_CONTENT
