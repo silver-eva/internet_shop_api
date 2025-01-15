@@ -5,15 +5,15 @@ from uuid import uuid4
 class PaginationRequest(BaseModel):
     page: int = Field(default=1, ge=1)
     limit: int = Field(default=10, ge=1)
-    keywords: Optional[str] = Field(default="", max_length=128)
+    keywords: Optional[str] = Field(default="", max_length=64)
 
 class CharacteristicRequest(BaseModel):
     id: UUID4 = Field(default_factory=uuid4)
-    value: str = Field(default="", max_length=128)
+    value: str = Field(default="", max_length=64)
 
 class CoreUpsertRequest(BaseModel):
     id: Optional[UUID4] | None = Field(None)
-    name: str = Field(default_factory=str, max_length=128)
+    name: str = Field(default_factory=str, max_length=64)
     description: str = Field(default_factory=str, max_length=256)
 
 class ItemFilterRequest(PaginationRequest):
@@ -29,7 +29,7 @@ class ItemFilterRequest(PaginationRequest):
 
 class ItemUpsertRequest(BaseModel):
     id: Optional[UUID4] = Field(default_factory=uuid4)
-    name: Optional[str] = Field(default_factory=str, max_length=128)
+    name: Optional[str] = Field(default_factory=str, max_length=64)
     description: Optional[str] = Field(default_factory=str, max_length=256)
     price: Optional[float | int] = Field(gt=0, default=0)
     category: Optional[UUID4] = Field(default_factory=uuid4, description="Category id [UUID]")
@@ -39,11 +39,11 @@ class ItemUpsertRequest(BaseModel):
     )
 
 class ReviewRequest(BaseModel):
-    name: Optional[str] = Field(default_factory=str, max_length=128)
+    name: Optional[str] = Field(default_factory=str, max_length=64)
     description: Optional[str] = Field(default_factory=str, max_length=256)
     stars: int = Field(default=1, ge=1, le=5)
 
 class NewsUpsertRequest(BaseModel):
     id: Optional[UUID4] = Field(default_factory=uuid4)
-    name: Optional[str] = Field(default_factory=str, max_length=128)
+    name: Optional[str] = Field(default_factory=str, max_length=64)
     description: Optional[str] = Field(default_factory=str, max_length=256)

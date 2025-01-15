@@ -39,12 +39,8 @@ class NewsResponse(BaseModel):
     description: str
     created_at: datetime
     updated_at: datetime
-    reviews: List[ReviewResponse]
+    reviews: List[ReviewResponse|None]
 
-class NewsShortResponse(BaseModel):
-    id: UUID4
-    name: str
-    updated_at: datetime
 
 class CoreResponse(BaseModel):
     id: UUID4
@@ -61,4 +57,4 @@ class ItemsPaginationResponse(PaginationResponse):
     items: List[ItemResponse]
 
 class NewsPaginationResponse(PaginationResponse):
-    items: List[NewsShortResponse]
+    items: List[NewsResponse]
