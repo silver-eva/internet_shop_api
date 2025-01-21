@@ -1,0 +1,48 @@
+services:
+  app:
+    container_name: app
+    restart: unless-stopped
+    entrypoint: python main.py -a 0.0.0.0 -p 8000 --reload
+    volumes:
+      - ./app:/app
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${APP_DB_USER}
+      - DB_PASS=${APP_DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_SCHEMA=${DB_SCHEMA}
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - ${APP_PORT}:8000
+    depends_on:
+      - db
+    networks:
+      - app_network
+  
+  db:
+    image: postgres:16-alpine
+    container_name: db
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_ROOT_USER}
+      - POSTGRES_PASSWORD=${DB_ROOT_PASS}
+      - APP_DB_USER=${APP_DB_USER}
+      - APP_DB_PASS=${APP_DB_PASS}
+      - APP_DB_SCHEMA=${DB_SCHEMA}
+      - PGDATA=/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT}:5432
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    networks:
+      - app_network
+
+networks:
+  app_network:
+volumes:
+  pg_data:
